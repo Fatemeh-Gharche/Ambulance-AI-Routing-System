@@ -1,4 +1,5 @@
 from map_loader import load_map, find_positions
+from search_utils import create_initial_state, MOVES, get_cost
 
 rows, cols, grid = load_map()
 
@@ -13,3 +14,9 @@ for row in grid:
 print("Start position:", start)
 print("Victims:", goals) 
 
+state = create_initial_state(start)
+print("Initial state:")
+print(state)
+
+print("\nMoves:")
+print(MOVES)
