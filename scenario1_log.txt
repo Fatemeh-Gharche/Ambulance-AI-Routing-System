@@ -1,8 +1,0 @@
-Pop: (0, 0), cost: 0, visited: ()
-Pop: (0, 0), cost: 1, visited: ()
-Pop: (0, 1), cost: 78, visited: ()
-Pop: (0, 0), cost: 79, visited: ()
-Pop: (0, 2), cost: 81, visited: ()
-Pop: (0, 2), cost: 82, visited: ()
-Pop: (0, 3), cost: 82, visited: ((0, 3),)
-Total nodes opened: 7

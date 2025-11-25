@@ -13,7 +13,7 @@ def get_step_cost(cell, time_so_far):
     if cell in ('S', 'G'):
         return 1
 
-    if cell == 'L':# 10 دقیقه باز - 10 دقیقه بسته (چرخه 20)
+    if cell == 'L':
         cycle = 20
         t = time_so_far % cycle
         if t < 10:

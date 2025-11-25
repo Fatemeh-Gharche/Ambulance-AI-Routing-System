@@ -3,9 +3,6 @@ def load_map():
     rows, cols = map(int, input().split())
     
     grid = []
-    # for _ in range(rows):
-    #     line = input().strip()
-    #     grid.append(list(line))
     for _ in range(rows):
         grid.append(list(input().strip()))
 
