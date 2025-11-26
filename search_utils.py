@@ -1,4 +1,3 @@
-# search_utils.py
 from dataclasses import dataclass, field
 from typing import List, Sequence, Tuple
 
@@ -38,7 +37,7 @@ class SearchUtils:
             cycle_mod = time_so_far % 20
             return 1 if cycle_mod < 10 else 10
 
-        # unreachable or invalid cell
+        
         return 10**9
 
     @staticmethod

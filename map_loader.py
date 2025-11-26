@@ -1,5 +1,3 @@
-# map_loader.py
-
 from typing import List, Tuple
 
 
