@@ -25,3 +25,20 @@ def find_positions(grid):
                 goals.append((r, c))
 
     return start, goals
+
+def find_positions_multi(grid):
+    starts = []
+    goals = []
+
+    for r in range(len(grid)):
+        for c in range(len(grid[0])):
+            cell = grid[r][c]
+
+            if cell == 'S':
+                starts.append((r, c))
+
+            if cell == 'G':
+                goals.append((r, c))
+
+    return starts, goals
+
