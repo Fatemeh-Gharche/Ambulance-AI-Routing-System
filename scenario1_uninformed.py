@@ -11,90 +11,78 @@ class UCS:
         self.goals = goals
         self.utils = SearchUtils()
         self.counter = itertools.count()
+        self.log = open("scenario1_log.txt", "w")
 
     def search(self):
         visited = {}
+        expanded = 0
 
-        start_state = State(
-            position=self.start,
-            visited_goals=(),
-            path=[],
-            cost=0
-        )
+        start_state = State(self.start, (), [], 0)
 
         queue = []
         heapq.heappush(queue, (0, next(self.counter), start_state))
-        expanded = 0
+        self.log.write(f"PUSH -> pos={self.start}, g=0, visited=()\n")
 
         while queue:
             cost_so_far, _, state = heapq.heappop(queue)
-
             current_pos = state.position
             visited_goals = state.visited_goals
             path_so_far = state.path
+
             expanded += 1
+            self.log.write(f"POP -> pos={current_pos}, g={cost_so_far}, visited={visited_goals}\n")
 
             if set(visited_goals) == set(self.goals):
+                self.log.write(f"TOTAL EXPANDED: {expanded}\n")
+                self.log.close()
                 return path_so_far, cost_so_far, expanded
 
-            time_mod = cost_so_far % 20
-            key = (current_pos, visited_goals, time_mod)
-
-            prev_cost = visited.get(key)
-            if prev_cost is not None and cost_so_far >= prev_cost:
+            key = (current_pos, visited_goals, cost_so_far % 20)
+            if key in visited and visited[key] <= cost_so_far:
                 continue
-
             visited[key] = cost_so_far
 
             for move, (dr, dc) in self.utils.MOVES.items():
                 nr, nc = current_pos[0] + dr, current_pos[1] + dc
+                if not (0 <= nr < len(self.grid) and 0 <= nc < len(self.grid[0])):
+                    continue
 
-                if 0 <= nr < len(self.grid) and 0 <= nc < len(self.grid[0]):
-                    cell = self.grid[nr][nc]
+                cell = self.grid[nr][nc]
+                current_time = cost_so_far
+                new_path = path_so_far.copy()
 
-                    new_path = path_so_far.copy()
-                    current_time = cost_so_far
-
-                    if move == 'STAY':
-                        new_path.append('STAY')
-                        new_cost = current_time + 1
-
-                    elif cell == 'L':
-                        while current_time % 20 >= 10:
-                            new_path.append('STAY')
-                            current_time += 1
-
-                        new_path.append(move)
+                if cell == 'L':
+                    while current_time % 20 >= 10:
+                        new_path.append("STAY")
                         current_time += 1
-                        new_cost = current_time
+                        self.log.write(f"PUSH -> pos={current_pos}, g={current_time}, move=STAY (delay)\n")
 
-                    else:
-                        step_cost = self.utils.step_cost(cell, current_time)
-                        new_path.append(move)
-                        new_cost = current_time + step_cost
+                    new_path.append(move)
+                    new_cost = current_time + 1
+                else:
+                    step = self.utils.step_cost(cell, current_time)
+                    new_path.append(move)
+                    new_cost = current_time + step
 
-                    new_visited = list(visited_goals)
-                    if cell == 'G' and (nr, nc) not in visited_goals:
-                        new_visited.append((nr, nc))
+                new_visited = list(visited_goals)
+                if cell == 'G' and (nr, nc) not in new_visited:
+                    new_visited.append((nr, nc))
+                new_visited = tuple(new_visited)
 
-                    new_state = State(
-                        position=(nr, nc),
-                        visited_goals=tuple(new_visited),
-                        path=new_path,
-                        cost=new_cost
-                    )
+                new_state = State((nr, nc), new_visited, new_path, new_cost)
+                heapq.heappush(queue, (new_cost, next(self.counter), new_state))
+                self.log.write(
+                    f"PUSH -> pos={(nr,nc)}, g={new_cost}, move={move}, visited={new_visited}\n"
+                )
 
-                    heapq.heappush(
-                        queue,
-                        (new_cost, next(self.counter), new_state)
-                    )
-
+        self.log.write("NO SOLUTION\n")
+        self.log.close()
         return None, None, expanded
+
 
 def main():
     loader = MapLoader()
-    rows, cols, grid = loader.load_map()
-
+    _, _, grid = loader.load_map()
     start, goals = loader.find_positions(grid)
 
     ucs = UCS(grid, start, goals)
@@ -103,9 +91,9 @@ def main():
     if path is None:
         print("No solution found.")
     else:
-        print(f"\nCost: {cost} min")
+        print(f"Cost: {cost}")
         print("Actions:", path)
-        print("Expanded States:", expanded)
+        print("Expanded:", expanded)
 
 
 if __name__ == "__main__":
